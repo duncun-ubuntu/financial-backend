@@ -1,14 +1,18 @@
-# ea_marketing_backend/settings.py
 from datetime import timedelta
-SECRET_KEY = 'your-secure-secret-key-here'
 import os
+import dj_database_url  # Add this import
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Use this exact MEDIA_ROOT
+# Use environment variable for SECRET_KEY
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secure-secret-key-here')  # Fallback for local
+
+# Media settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DEBUG = True
+# Debug settings
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'  # False in production
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -36,7 +40,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'ea_marketing_backend.urls'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# Update ALLOWED_HOSTS for Render
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') + ['.onrender.com']
 
 TEMPLATES = [
     {
@@ -56,19 +61,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ea_marketing_backend.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ea',
-        'USER': 'duncun',
-        'PASSWORD': 'Mazeed@Munyama1234',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+# Database configuration
+if os.getenv('DATABASE_URL'):
+    # Render PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600
+        )
+    }
+else:
+    # Local MySQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'ea',
+            'USER': 'duncun',
+            'PASSWORD': 'Mazeed@Munyama1234',
+            'HOST': '127.0.0.1',
+            'PORT': '3306',
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            }
         }
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -82,13 +98,18 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Add this for Render
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Optional, for local static files
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://ea-marketing-frontend.onrender.com",  # Add your frontend Render URL
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -121,12 +142,12 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG', # Change to DEBUG for more verbose output
+        'level': 'DEBUG',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO', # You can change this to DEBUG too
+            'level': 'INFO',
             'propagate': False,
         },
     },
