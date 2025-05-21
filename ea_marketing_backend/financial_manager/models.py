@@ -52,6 +52,11 @@ class Budget(models.Model):
             if self.spent > self.allocated:
                 raise ValidationError(f"Spent amount ({self.spent}) cannot exceed allocated amount ({self.allocated}).")
 
+    def save(self, *args, **kwargs):
+        if not self._skip_validation:
+            self.clean()
+        super().save(*args, **kwargs)
+
 class CompanyExpense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='expenses')
@@ -73,7 +78,8 @@ class CompanyExpense(models.Model):
                 )
 
     def save(self, *args, **kwargs):
-        self.clean()
+        if not self._skip_validation:
+            self.clean()
         super().save(*args, **kwargs)
         # Update budget's spent amount
         self.budget.spent = sum(Decimal(str(exp.amount)) for exp in self.budget.expenses.all())
