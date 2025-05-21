@@ -41,8 +41,8 @@ if not hasattr(user, 'userprofile'):
 
 # Seed Budgets (must be created before expenses due to foreign key)
 budgets = [
-    {'category': 'Marketing', 'allocated': 10000.00, 'spent': 8500.00},
-    {'category': 'Development', 'allocated': 15000.00, 'spent': 17000.00},
+    {'category': 'Marketing', 'allocated': 50000.00, 'spent': 42500.00},  # Adjusted to cover expenses
+    {'category': 'Development', 'allocated': 20000.00, 'spent': 17000.00},  # Adjusted to cover potential expenses
     {'category': 'Operations', 'allocated': 8000.00, 'spent': 6000.00},
     {'category': 'Research', 'allocated': 5000.00, 'spent': 5200.00},
     {'category': 'mradi sunbeam', 'allocated': 30000.00, 'spent': 14000.00},
@@ -79,7 +79,7 @@ for earning in company_earnings:
         date=datetime.strptime(earning['date'], '%Y-%m-%d').date()
     )
 
-# Seed Company Expenses (assign budget_id based on category)
+# Seed Company Expenses
 company_expenses = [
     {'category': 'Salaries', 'amount': 30000.00, 'date': '2025-04-01', 'budget_category': 'Marketing'},
     {'category': 'Office Rent', 'amount': 5000.00, 'date': '2025-04-05', 'budget_category': 'Marketing'},
@@ -223,7 +223,180 @@ invoices = [
         'created_at': datetime.strptime('2025-05-09 11:01:03.890257', '%Y-%m-%d %H:%M:%S.%f'),
         'signature_choice': None
     },
-    # Add other invoices similarly...
+    {
+        'invoice_number': 'BD.2025.002',
+        'client_name': 'bd',
+        'client_email': 'rrr@gmail.com',
+        'date': '2025-05-09',
+        'items': [
+            {"quantity": 2, "unit_price": 2000, "description": "wee"}
+        ],
+        'total_amount': 4000.0,
+        'client_location': 'dffb',
+        'client_tin': '34253',
+        'include_days': False,
+        'vat_rate': 0.0,
+        'client_address': 'dfdfb',
+        'heading': 'Tax Invoice',
+        'subtitle': 'yuuu',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-09 11:50:13.254677', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': None
+    },
+    {
+        'invoice_number': 'MAL.2025.002',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-09',
+        'items': [
+            {"quantity": 2, "unit_price": 1000, "description": "YEES"},
+            {"quantity": 4, "unit_price": 200, "description": "NOO"},
+            {"quantity": 6, "unit_price": 3700, "description": "WEE"},
+            {"quantity": 4, "unit_price": 2300, "description": "REES"}
+        ],
+        'total_amount': 35920.5,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 5.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Tax Invoice',
+        'subtitle': 'YEES',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-09 12:15:06.167112', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': None
+    },
+    {
+        'invoice_number': 'MAL.2025.003',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-09',
+        'items': [
+            {"quantity": 1, "unit_price": 1000, "description": "WEE"}
+        ],
+        'total_amount': 1052.1,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 5.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Performance Invoice',
+        'subtitle': 'TT',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-09 12:22:12.723152', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': None
+    },
+    {
+        'invoice_number': 'MAL.2025.004',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-09',
+        'items': [
+            {"quantity": 2, "unit_price": 1000, "description": "rrr"}
+        ],
+        'total_amount': 2106.3,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 5.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Tax Invoice',
+        'subtitle': 'dddd',
+        'agent_fee': 6.0,
+        'include_agent_fee': True,
+        'created_at': datetime.strptime('2025-05-09 12:34:58.052982', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': None
+    },
+    {
+        'invoice_number': 'MAL.2025.005',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-09',
+        'items': [
+            {"quantity": 3, "unit_price": 2000, "description": "weeee"},
+            {"quantity": 4, "unit_price": 3000, "description": "wrrr"},
+            {"quantity": 5, "unit_price": 2500, "description": "dee"},
+            {"quantity": 3, "unit_price": 4000, "description": "faa"}
+        ],
+        'total_amount': 44635.5,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 5.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Tax Invoice',
+        'subtitle': 'hh',
+        'agent_fee': 10.0,
+        'include_agent_fee': True,
+        'created_at': datetime.strptime('2025-05-09 12:39:07.726906', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': None
+    },
+    {
+        'invoice_number': 'BD.2025.003',
+        'client_name': 'bd',
+        'client_email': 'rrr@gmail.com',
+        'date': '2025-05-12',
+        'items': [
+            {"quantity": 2, "unit_price": 2000, "description": "eeee"}
+        ],
+        'total_amount': 4000.0,
+        'client_location': 'dffb',
+        'client_tin': '34253',
+        'include_days': False,
+        'vat_rate': 0.0,
+        'client_address': 'dfdfb',
+        'heading': 'Tax Invoice',
+        'subtitle': 'jjjjjjjj',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-12 10:08:27.052971', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': 'siza'
+    },
+    {
+        'invoice_number': 'MAL.2025.006',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-12',
+        'items': [
+            {"quantity": 3, "unit_price": 2000, "description": "eee"}
+        ],
+        'total_amount': 6000.0,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 0.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Performance Invoice',
+        'subtitle': 'yyyy',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-12 11:40:16.723051', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': 'elisha'
+    },
+    {
+        'invoice_number': 'MAL.2025.007',
+        'client_name': 'malima',
+        'client_email': 'haa@gmail.co.tz',
+        'date': '2025-05-12',
+        'items': [
+            {"quantity": 5, "unit_price": 2500, "description": "weee"}
+        ],
+        'total_amount': 12500.0,
+        'client_location': 'daresalaam',
+        'client_tin': '7324563',
+        'include_days': False,
+        'vat_rate': 0.0,
+        'client_address': 'p.o.b 223344',
+        'heading': 'Purchase Order',
+        'subtitle': 'iiiiibbbb',
+        'agent_fee': 0.0,
+        'include_agent_fee': False,
+        'created_at': datetime.strptime('2025-05-12 11:41:19.324580', '%Y-%m-%d %H:%M:%S.%f'),
+        'signature_choice': 'ginye'
+    },
 ]
 for inv in invoices:
     Invoice.objects.get_or_create(
