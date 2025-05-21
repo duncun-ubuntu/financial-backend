@@ -1,6 +1,17 @@
+# ea_marketing_backend/financial_manager/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from decimal import Decimal
+import os
+
+def validate_file_size(value):
+    max_size = 1 * 1024 * 1024  # 1MB in bytes
+    if value.size > max_size:
+        raise ValidationError("File size cannot exceed 1MB.")
+
+def document_upload_path(instance, filename):
+    return f"documents/{instance.user.id}/{filename}"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -26,24 +37,37 @@ class CompanyEarning(models.Model):
     def __str__(self):
         return f"{self.project} - {self.amount}"
 
-# financial_manager/models.py
+class Budget(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.CharField(max_length=100)
+    allocated = models.DecimalField(max_digits=10, decimal_places=2)
+    spent = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    _skip_validation = False  # Flag to bypass validation
+
+    def __str__(self):
+        return self.category
+
+    def clean(self):
+        if not self._skip_validation:
+            if self.spent > self.allocated:
+                raise ValidationError(f"Spent amount ({self.spent}) cannot exceed allocated amount ({self.allocated}).")
+
 class CompanyExpense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    budget = models.ForeignKey('Budget', on_delete=models.CASCADE, related_name='expenses')
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='expenses')
     category = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
-    _skip_validation = False  # Add flag to bypass validation
+    _skip_validation = False  # Flag to bypass validation
 
     def __str__(self):
         return f"{self.category} - {self.amount}"
 
     def clean(self):
-        if not self._skip_validation:  # Skip validation if flag is True
-            # Ensure expense does not cause budget overspending
+        if not self._skip_validation:
             budget = self.budget
-            current_spent = sum(float(exp.amount) for exp in budget.expenses.exclude(id=self.id))
-            if current_spent + float(self.amount) > float(budget.allocated):
+            current_spent = sum(Decimal(str(exp.amount)) for exp in budget.expenses.exclude(id=self.id))
+            if current_spent + self.amount > budget.allocated:
                 raise ValidationError(
                     f"Expense of {self.amount} exceeds remaining budget ({budget.allocated - current_spent}) for {budget.category}."
                 )
@@ -52,21 +76,9 @@ class CompanyExpense(models.Model):
         self.clean()
         super().save(*args, **kwargs)
         # Update budget's spent amount
-        self.budget.spent = sum(float(exp.amount) for exp in self.budget.expenses.all())
+        self.budget.spent = sum(Decimal(str(exp.amount)) for exp in self.budget.expenses.all())
+        self.budget._skip_validation = True  # Bypass Budget validation
         self.budget.save()
-
-class Budget(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.CharField(max_length=100)
-    allocated = models.DecimalField(max_digits=10, decimal_places=2)
-    spent = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-    def __str__(self):
-        return self.category
-
-    def clean(self):
-        if self.spent > self.allocated:
-            raise ValidationError(f"Spent amount ({self.spent}) cannot exceed allocated amount ({self.allocated}).")
 
 class Investment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -86,24 +98,11 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.description} - {self.amount}"
-    
-from django.db import models
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-import os
-
-def validate_file_size(value):
-    max_size = 1 * 1024 * 1024  # 1MB in bytes
-    if value.size > max_size:
-        raise ValidationError("File size cannot exceed 1MB.")
-
-def document_upload_path(instance, filename):
-    return f"documents/{instance.user.id}/{filename}"
 
 class CompanyDocument(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    file = models.FileField(upload_to=document_upload_path, validators=[validate_file_size])
+    file = models.CharField(max_length=100)  # Temporary for seeding
     file_type = models.CharField(max_length=10, choices=[
         ('pdf', 'PDF'),
         ('docx', 'Word'),
@@ -115,19 +114,15 @@ class CompanyDocument(models.Model):
         return f"{self.title} ({self.file_type})"
 
     def clean(self):
-        # Validate file extension matches declared file_type
-        ext = os.path.splitext(self.file.name)[1].lower()
-        valid_extensions = {
-            'pdf': ['.pdf'],
-            'docx': ['.docx', '.doc'],
-            'xlsx': ['.xlsx', '.xls'],
-        }
-        if ext not in valid_extensions[self.file_type]:
-            raise ValidationError(f"File extension {ext} does not match selected file type {self.file_type}.")
-
-# models.py
-from django.db import models
-from django.contrib.auth.models import User
+        if not hasattr(self, '_skip_validation') or not self._skip_validation:
+            ext = os.path.splitext(self.file)[1].lower()
+            valid_extensions = {
+                'pdf': ['.pdf'],
+                'docx': ['.docx', '.doc'],
+                'xlsx': ['.xlsx', '.xls'],
+            }
+            if ext not in valid_extensions[self.file_type]:
+                raise ValidationError(f"File extension {ext} does not match selected file type {self.file_type}.")
 
 class Invoice(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -139,7 +134,7 @@ class Invoice(models.Model):
     date = models.DateField()
     heading = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255)
-    items = models.JSONField()  # List of items
+    items = models.JSONField()
     vat_rate = models.FloatField()
     include_days = models.BooleanField(default=False)
     include_agent_fee = models.BooleanField(default=False)
@@ -160,5 +155,3 @@ class Invoice(models.Model):
 
     def __str__(self):
         return f"Invoice {self.invoice_number} for {self.client_name}"
-
-# ... (Keep existing models: UserProfile, CompanyEarning, etc.) ...
