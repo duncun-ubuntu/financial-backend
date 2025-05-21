@@ -109,7 +109,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://ea-marketing-frontend.onrender.com",  # Add your frontend Render URL
+    "https://financial-frontend-86n9.onrender.com",  # Add your frontend Render URL
 ]
 CORS_ALLOW_CREDENTIALS = True
 
