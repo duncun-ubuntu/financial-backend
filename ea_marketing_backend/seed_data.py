@@ -44,7 +44,7 @@ budgets = [
     {'category': 'Marketing', 'allocated': 50000.00, 'spent': 42500.00},  # Adjusted to cover expenses
     {'category': 'Development', 'allocated': 20000.00, 'spent': 17000.00},  # Adjusted to cover potential expenses
     {'category': 'Operations', 'allocated': 8000.00, 'spent': 6000.00},
-    {'category': 'Research', 'allocated': 5000.00, 'spent': 5200.00},
+    {'category': 'Research', 'allocated': 7000.00, 'spent': 5200.00},
     {'category': 'mradi sunbeam', 'allocated': 30000.00, 'spent': 14000.00},
     {'category': 'water bills', 'allocated': 40000.00, 'spent': 28000.00},
     {'category': 'Test Budget', 'allocated': 1000.00, 'spent': 200.00},
