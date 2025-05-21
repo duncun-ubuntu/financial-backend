@@ -26,24 +26,27 @@ class CompanyEarning(models.Model):
     def __str__(self):
         return f"{self.project} - {self.amount}"
 
+# financial_manager/models.py
 class CompanyExpense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     budget = models.ForeignKey('Budget', on_delete=models.CASCADE, related_name='expenses')
     category = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
+    _skip_validation = False  # Add flag to bypass validation
 
     def __str__(self):
         return f"{self.category} - {self.amount}"
 
     def clean(self):
-        # Ensure expense does not cause budget overspending
-        budget = self.budget
-        current_spent = sum(float(exp.amount) for exp in budget.expenses.exclude(id=self.id))
-        if current_spent + float(self.amount) > float(budget.allocated):
-            raise ValidationError(
-                f"Expense of {self.amount} exceeds remaining budget ({budget.allocated - current_spent}) for {budget.category}."
-            )
+        if not self._skip_validation:  # Skip validation if flag is True
+            # Ensure expense does not cause budget overspending
+            budget = self.budget
+            current_spent = sum(float(exp.amount) for exp in budget.expenses.exclude(id=self.id))
+            if current_spent + float(self.amount) > float(budget.allocated):
+                raise ValidationError(
+                    f"Expense of {self.amount} exceeds remaining budget ({budget.allocated - current_spent}) for {budget.category}."
+                )
 
     def save(self, *args, **kwargs):
         self.clean()
