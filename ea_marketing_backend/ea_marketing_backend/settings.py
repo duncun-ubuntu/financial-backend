@@ -1,19 +1,18 @@
 from datetime import timedelta
 import os
-import dj_database_url  # Add this import
+import dj_database_url
 
+# Build paths inside the project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Use environment variable for SECRET_KEY
+# Security settings
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secure-secret-key-here')  # Fallback for local
-
-# Media settings
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-# Debug settings
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'  # False in production
 
+# Update ALLOWED_HOSTS for Render
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') + ['financial-backend-2-pm6x.onrender.com', 'financial-frontend-86n9.onrender.com']
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,9 +27,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',  # Added for response compression
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be before CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -40,13 +40,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'ea_marketing_backend.urls'
 
-# Update ALLOWED_HOSTS for Render
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') + ['.onrender.com']
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Added for index.html
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,7 +72,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'ea',
+            'NAME': 'ea6',
             'USER': 'duncun',
             'PASSWORD': 'Mazeed@Munyama1234',
             'HOST': '127.0.0.1',
@@ -86,6 +83,7 @@ else:
         }
     }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -93,6 +91,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -100,18 +99,34 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Add this for Render
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Optional, for local static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend/build'),  # Path to React build files
+]
 
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://financial-frontend-86n9.onrender.com",  # Add your frontend Render URL
+    "https://financial-frontend-86n9.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# Secure cookie settings for production
+SESSION_COOKIE_SECURE = True  # Use secure cookies over HTTPS
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access CSRF token if needed
+CSRF_TRUSTED_ORIGINS = [
+    "https://financial-frontend-86n9.onrender.com",
+    "https://*.onrender.com",  # Cover backend Render URL
+]
 
 # REST Framework Settings
 REST_FRAMEWORK = {
@@ -132,6 +147,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 }
 
+# Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -148,6 +164,11 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        'financial_manager': {  # Add logger for your app
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
